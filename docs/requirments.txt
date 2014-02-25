@@ -1,0 +1,48 @@
+Administration 
+
+	User should be able to add/modify account
+		For ex : Konka, Beeradka etc..
+	User should be able to add/modify employee
+		Default account 
+		Default wage
+
+	User should be able to add/modify Wages
+		Wages should have from date, to-date and active flag.
+	User should be able to define different wages based on different types of work. 
+		Ex -  Pesticide spray, harvesting normal etc.. 
+	User should be able to add money value to various items
+
+	User should be able to add various tags 
+		Crop:Areca, Crop:Rubber, Crop:Coconut, Work:common, Work:pesticide, 
+		Work:harvesting, Work:special etc.. work:Seasonal, 
+		More categories should be thought of 
+
+
+Report
+	User should be able to see No of Days, Work Money, Money taken, Money equivalent, Carry over, Outstanding amount and Bonus/extra money given.
+		Default is Current Month, Options should be available for Current Year, Given Month, Given Year and Date Range.
+	User should be able to see the total work for any given crop, account, events etc..
+
+Work
+	User should be able to enter attnedence for a perticular day.
+	User should be able to mark attendence as full and half.
+		The default wage should be taken based on the type of employee(male/female).
+		There should be option to change the wage (if required)		
+	User should be able to enter money taken.
+	User should be able to enter money equivalent.
+	User should be able to enter the bonus/extra money given.
+	User should be able to edit these values at any given point of time.
+	User should be able to tag a work to a category on a given day.
+		Advanced option should help enter no.of hours or percentage.
+		User should be able to change the account for a given day.  
+	
+
+Non Functional
+	Generate/Print report any given point of time.
+	Periodic Backup.
+	Language support
+	Designing for web/desktop/mobile/anydevice.
+	Scope for adding crop sale details.
+	Scope for adding dairy income/Expense.
+	Scope for adding House hold Expense.
+	Scope for adding Crop expenses.
