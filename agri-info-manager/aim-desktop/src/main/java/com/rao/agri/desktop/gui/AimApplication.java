@@ -23,33 +23,29 @@ public class AimApplication extends JFrame{
 
 	private static final long serialVersionUID = -3511878237183448072L;
 
+	private static Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	private static final Dimension preffredWindowSize = new Dimension(750, 600);
+	private static final Dimension minimumWindowSize  = new Dimension(400, 400);
+	
 	private static AimApplication AIM_APPLICATION = null;
 	
-	private static Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	
-	public static final Dimension preffredWindowSize = new Dimension(750, 600);
-	public static final Dimension minimumWindowSize  = new Dimension(400, 400);
-	
-	
+	// Block the instance creation
 	private AimApplication(){
-		
 		setTitle(AimConstants.APP_TITLE);
-
+		
 		// Lets save the changes, release resources and then close the application later
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-
-		class ext extends WindowAdapter
-		{
-			public void windowClosing(WindowEvent e)
-			{
-				exit();
-			}
-		}
-		addWindowListener(new ext());
-
+		addWindowListener(new Ext());
+		
+		// Initialize the frame/UI/Resources
 		init();
-		
-		
+	}
+	
+	class Ext extends WindowAdapter{
+		@Override
+		public void windowClosing(WindowEvent e){
+			exit();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -88,8 +84,8 @@ public class AimApplication extends JFrame{
 		setJMenuBar(new AimMenuBar());
 
 		// Intialize the container
-		Container mRootPanel = getContentPane();
-		mRootPanel.setLayout(new BorderLayout());
+		Container rootPanel = getContentPane();
+		rootPanel.setLayout(new BorderLayout());
 
 		// Set the preffered size for this window.
 		if(ScreenSize.width < preffredWindowSize.width) preffredWindowSize.width = ScreenSize.width;
@@ -115,7 +111,7 @@ public class AimApplication extends JFrame{
 		if (opt == JOptionPane.CLOSED_OPTION) return;
 		
 		if(opt == JOptionPane.YES_OPTION){
-			// TODO, Release of resource
+			// TODO, Save transactions if any and release of resource
 		}
 		dispose();
 	}
@@ -149,6 +145,8 @@ public class AimApplication extends JFrame{
 			viewMenu.setEnabled(false);
 			add(helpMenu);
 		}
+		
+		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
 			if(e.getSource() == exitMenuItem)
