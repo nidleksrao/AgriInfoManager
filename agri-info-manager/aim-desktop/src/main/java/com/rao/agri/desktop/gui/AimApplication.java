@@ -1,166 +1,148 @@
 package com.rao.agri.desktop.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javafx.application.Application;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import com.rao.agri.desktop.AimConstants;
+import com.rao.agri.desktop.gui.controls.WindowButtons;
+import com.rao.agri.desktop.gui.controls.WindowResizeButton;
 
-public class AimApplication extends JFrame{
+public class AimApplication extends Application{
 
-	private static final long serialVersionUID = -3511878237183448072L;
-
-	private static Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	private static final Dimension preffredWindowSize = new Dimension(750, 600);
-	private static final Dimension minimumWindowSize  = new Dimension(400, 400);
-	
-	private static AimApplication AIM_APPLICATION = null;
-	
-	// Block the instance creation
-	private AimApplication(){
-		setTitle(AimConstants.APP_TITLE);
+	private static AimApplication AIM_APPLICATION;
+    private double mouseDragOffsetX = 0;
+    private double mouseDragOffsetY = 0;
+    
+	@Override
+	public void start(final Stage stage) throws Exception {
+		AIM_APPLICATION = this;
+		stage.setTitle(AimConstants.APP_TITLE);
+	    // We don't want default application frame 
+		stage.initStyle(StageStyle.UNDECORATED);
+        
+		// create window resize button
+		final WindowResizeButton windowResizeButton = new WindowResizeButton(stage, AimConstants.APP_MIN_WIDTH,AimConstants.APP_MIN_HEIGHT);
+        
+		// create root
+		BorderPane root = new BorderPane() {
+            @Override 
+            protected void layoutChildren() {
+                super.layoutChildren();
+                windowResizeButton.autosize();
+                windowResizeButton.setLayoutX(getWidth() - windowResizeButton.getLayoutBounds().getWidth());
+                windowResizeButton.setLayoutY(getHeight() - windowResizeButton.getLayoutBounds().getHeight());
+            }
+        };
+        root.getStyleClass().add("application");
+        root.setId("root");
+	    
+        Scene scene = new Scene(root, AimConstants.APP_MIN_WIDTH,AimConstants.APP_MIN_HEIGHT);
+        scene.getStylesheets().add(AimApplication.class.getResource("AimApplication.css").toExternalForm());
+        
+        
+        ToolBar toolBar = new ToolBar();
+        toolBar.setId("mainToolBar");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        toolBar.getItems().add(spacer);
+        
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+        toolBar.getItems().add(spacer2);
+        
+        toolBar.setPrefHeight(66);
+        toolBar.setMinHeight(66);
+        toolBar.setMaxHeight(66);
+        GridPane.setConstraints(toolBar, 0, 0);
+        
+        
+        final WindowButtons windowButtons = new WindowButtons(stage);
+        toolBar.getItems().add(windowButtons);
+        // add window header double clicking
+        toolBar.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override 
+            public void handle(MouseEvent event) {
+                if (event.getClickCount() == 2) {
+                    windowButtons.toogleMaximized();
+                }
+            }
+        });
+        // add window dragging
+        toolBar.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override 
+            public void handle(MouseEvent event) {
+                mouseDragOffsetX = event.getSceneX();
+                mouseDragOffsetY = event.getSceneY();
+            }
+        });
+        toolBar.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override 
+            public void handle(MouseEvent event) {
+                if(!windowButtons.isMaximized()) {
+                    stage.setX(event.getScreenX()-mouseDragOffsetX);
+                    stage.setY(event.getScreenY()-mouseDragOffsetY);
+                }
+            }
+        });
+        
+        root.setTop(toolBar);
+        
+        ToolBar pageTreeToolBar = new ToolBar();
+        
+        pageTreeToolBar.setId("page-tree-toolbar");
+        pageTreeToolBar.setMinHeight(29);
+        pageTreeToolBar.setMaxWidth(Double.MAX_VALUE);
+        
+        ToggleGroup pageButtonGroup = new ToggleGroup();
+        final ToggleButton allButton = new ToggleButton("All");
+        allButton.setToggleGroup(pageButtonGroup);
+        allButton.setSelected(true);
+        
+        final ToggleButton samplesButton = new ToggleButton("Konka");
+        samplesButton.setToggleGroup(pageButtonGroup);
+        
+        final ToggleButton docsButton = new ToggleButton("Beeradka");
+        docsButton.setToggleGroup(pageButtonGroup);
+        
+        InvalidationListener treeButtonNotifyListener = new InvalidationListener() {
+            public void invalidated(Observable ov) {
+                if(allButton.isSelected()) {
+                    //pageTree.setRoot(pages.getRoot());
+                } else if(samplesButton.isSelected()) {
+                    //pageTree.setRoot(pages.getSamples());
+                } else if(docsButton.isSelected()) {
+                    //pageTree.setRoot(pages.getDocs());
+                }
+            }
+        };
+        allButton.selectedProperty().addListener(treeButtonNotifyListener);
+        samplesButton.selectedProperty().addListener(treeButtonNotifyListener);
+        docsButton.selectedProperty().addListener(treeButtonNotifyListener);
+        pageTreeToolBar.getItems().addAll(allButton, samplesButton, docsButton);
+        
+        
+        root.setLeft(pageTreeToolBar);;
+        
+	    stage.setScene(scene);
+	    stage.show();
 		
-		// Lets save the changes, release resources and then close the application later
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(new Ext());
-		
-		// Initialize the frame/UI/Resources
-		init();
 	}
-	
-	class Ext extends WindowAdapter{
-		@Override
-		public void windowClosing(WindowEvent e){
-			exit();
-		}
-	}
-	
+
 	public static void main(String[] args) {
-		
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//Make sure we have nice window decorations.
-		JFrame.setDefaultLookAndFeelDecorated(true);
-
-		//WinSplash.start();
-		AIM_APPLICATION = new AimApplication();
-
-		//WinSplash.stop();
-		AIM_APPLICATION.setVisible(true);
-
-	}
-	
-	
-	private void init()
-	{
-		// Add menu bar
-		setJMenuBar(new AimMenuBar());
-
-		// Intialize the container
-		Container rootPanel = getContentPane();
-		rootPanel.setLayout(new BorderLayout());
-
-		// Set the preffered size for this window.
-		if(ScreenSize.width < preffredWindowSize.width) preffredWindowSize.width = ScreenSize.width;
-		if(ScreenSize.height < preffredWindowSize.height) preffredWindowSize.height = ScreenSize.height;
-		
-		setSize(preffredWindowSize);		
-		setMinimumSize(minimumWindowSize);
-
-		// get coordinates for location
-		int w = ScreenSize.width - preffredWindowSize.width;
-		int h = ScreenSize.height - preffredWindowSize.height;
-		
-		setLocation(w/2, h/2);
-		setResizable(true);
-	}
-	
-	
-	public void exit(){
-		int opt = JOptionPane.showConfirmDialog(this, AimConstants.CLOSE_MESSAGE);
-		
-		if (opt == JOptionPane.OK_CANCEL_OPTION) return;
-		if (opt == JOptionPane.NO_OPTION) return;
-		if (opt == JOptionPane.CLOSED_OPTION) return;
-		
-		if(opt == JOptionPane.YES_OPTION){
-			// TODO, Save transactions if any and release of resource
-		}
-		dispose();
-	}
-	
-	
-	class AimMenuBar extends JMenuBar implements ActionListener
-	{
-		private static final long serialVersionUID = 1L;
-		private JMenuItem exitMenuItem = new JMenuItem("Exit");
-		private JMenuItem configMenuItem  = new JMenuItem("Config");
-		private JMenuItem aboutMenuItem = new JMenuItem("About");
-
-		AimMenuBar()
-		{
-			JMenu  fileMenu = new JMenu("File");
-			JMenu  editMenu = new JMenu("Edit");
-			JMenu  viewMenu = new JMenu("View");
-			JMenu  helpMenu = new JMenu("Help");
-
-			exitMenuItem.addActionListener(this);
-			configMenuItem.addActionListener(this);
-			aboutMenuItem.addActionListener(this);
-
-			fileMenu.add(exitMenuItem);
-			editMenu.add(configMenuItem);
-			helpMenu.add(aboutMenuItem);
-
-			add(fileMenu);
-			add(editMenu);
-			add(viewMenu); 
-			viewMenu.setEnabled(false);
-			add(helpMenu);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) 
-		{
-			if(e.getSource() == exitMenuItem)
-			{
-				exit();
-			}
-			else if(e.getSource() == configMenuItem)
-			{
-				//TODO
-			}
-			else if(e.getSource() == aboutMenuItem)
-			{
-				//TODO 
-			}
-		}
+		launch(args);
 	}
 }
