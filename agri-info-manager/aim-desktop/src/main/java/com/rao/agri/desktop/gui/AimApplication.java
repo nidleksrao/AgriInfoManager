@@ -1,12 +1,8 @@
 package com.rao.agri.desktop.gui;
 
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import com.rao.agri.desktop.AimConstants;
+import com.rao.agri.desktop.gui.controls.LeftNavigation;
 import com.rao.agri.desktop.gui.controls.WindowButtons;
 import com.rao.agri.desktop.gui.controls.WindowResizeButton;
 
@@ -101,41 +98,20 @@ public class AimApplication extends Application{
         
         root.setTop(toolBar);
         
-        ToolBar pageTreeToolBar = new ToolBar();
-        
-        pageTreeToolBar.setId("page-tree-toolbar");
-        pageTreeToolBar.setMinHeight(29);
-        pageTreeToolBar.setMaxWidth(Double.MAX_VALUE);
-        
-        ToggleGroup pageButtonGroup = new ToggleGroup();
-        final ToggleButton allButton = new ToggleButton("All");
-        allButton.setToggleGroup(pageButtonGroup);
-        allButton.setSelected(true);
-        
-        final ToggleButton samplesButton = new ToggleButton("Konka");
-        samplesButton.setToggleGroup(pageButtonGroup);
-        
-        final ToggleButton docsButton = new ToggleButton("Beeradka");
-        docsButton.setToggleGroup(pageButtonGroup);
-        
-        InvalidationListener treeButtonNotifyListener = new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if(allButton.isSelected()) {
-                    //pageTree.setRoot(pages.getRoot());
-                } else if(samplesButton.isSelected()) {
-                    //pageTree.setRoot(pages.getSamples());
-                } else if(docsButton.isSelected()) {
-                    //pageTree.setRoot(pages.getDocs());
-                }
-            }
-        };
-        allButton.selectedProperty().addListener(treeButtonNotifyListener);
-        samplesButton.selectedProperty().addListener(treeButtonNotifyListener);
-        docsButton.selectedProperty().addListener(treeButtonNotifyListener);
-        pageTreeToolBar.getItems().addAll(allButton, samplesButton, docsButton);
+        LeftNavigation leftNav = new LeftNavigation();
+        leftNav.setId("left-nav-bar");
+        //leftNav.setMinHeight(29);
+        //leftNav.setMaxWidth(Double.MAX_VALUE);
+       
         
         
-        root.setLeft(pageTreeToolBar);;
+        
+        
+    
+        
+        
+        
+        root.setLeft(leftNav);;
         
 	    stage.setScene(scene);
 	    stage.show();
